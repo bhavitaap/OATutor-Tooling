@@ -27,7 +27,8 @@ replace = {"⋅" : "*",
             "\\cap": "∩", 
             "π" : "pi", 
             "µ": "\\mu", 
-            "α": "\\alpha"}
+            "α": "\\alpha",
+           "≠": "!="}
 conditionally_replace = {"[" : "(", "]" : ")"}
 regex = re.compile("|".join(map(re.escape, replace.keys())))
 force_latex = 0.0
@@ -103,7 +104,7 @@ def preprocess_text_to_latex(text, tutoring=False, stepMC=False, render_latex="T
             # process each side of the equation
             try:
                 word = re.sub(r'!=', r'`', word) # use ` to temporarily denote not equal  
-                sides = re.split('((?<!\\\\)`|=|U|∩|<=|>=|_{3})', word)
+                sides = re.split('((?<!\\\\)`|=|U|∩|<=|>=|!=|_{3})', word)
                 sides = [handle_word(side) for side in sides]
                 new_word = ""
                 if tutoring and stepMC:
@@ -197,7 +198,7 @@ def use_latex(word, render_latex, stepMC):
     return False
 
 def handle_word(word, coord=True):
-    latex_dic = {"=": "=", "U": " \cup ", "∩": " \cap ", "<=" : " \leq ", ">=" : " \geq ", "`": " \\neq "}
+    latex_dic = {"=": "=", "U": " \cup ", "∩": " \cap ", "<=" : " \leq ", ">=" : " \geq ", "!=": " \neq "}
     if word in latex_dic:
         return latex_dic[word]
 
