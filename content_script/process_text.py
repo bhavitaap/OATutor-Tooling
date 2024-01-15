@@ -103,7 +103,6 @@ def preprocess_text_to_latex(text, tutoring=False, stepMC=False, render_latex="T
             
             # process each side of the equation
             try:
-                word = re.sub(r'!=', r'`', word) # use ` to temporarily denote not equal  
                 sides = re.split('((?<!\\\\)`|=|U|∩|<=|>=|!=|_{3})', word)
                 sides = [handle_word(side) for side in sides]
                 new_word = ""
