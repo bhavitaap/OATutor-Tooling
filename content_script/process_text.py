@@ -197,7 +197,7 @@ def use_latex(word, render_latex, stepMC):
     return False
 
 def handle_word(word, coord=True):
-    latex_dic = {"=": "=", "U": " \cup ", "∩": " \cap ", "<=" : " \leq ", ">=" : " \geq ", "!=": " \neq "}
+    latex_dic = {"=": "=", "U": " \cup ", "∩": " \cap ", "<=" : " \leq ", ">=" : " \geq ", "!=": " \\neq "}
     if word in latex_dic:
         return latex_dic[word]
 
