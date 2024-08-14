@@ -33,7 +33,7 @@ skillModel.json
 
 # credential files
 firebase_service_account.json
-oatutor-askoski-f122840466c4.json
+/home/runner/work/oatutor-askoski-f122840466c4.json
 oatutor-firebase-adminsdk.json
 .env
 
