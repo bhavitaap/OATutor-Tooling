@@ -28,6 +28,7 @@ def get_sheet_online(spreadsheet_key):
     credentials = ServiceAccountCredentials.from_json_keyfile_name("/home/runner/work/oatutor-askoski-f122840466c4.json", scope)
     gc = gspread.authorize(credentials)
     book = gc.open_by_key(spreadsheet_key)
+    print(f"Spreadsheet title: {book.title}")
     return book
 
 
