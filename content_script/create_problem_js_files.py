@@ -58,24 +58,33 @@ def save_images(images, checksums, path, num, old_path):
             continue
 
         try:
-            r = requests.get(i, headers=fake_headers)
+        r = requests.get(i, headers=fake_headers)
+        r.raise_for_status()
+        if 'image' in r.headers['Content-Type']:
+            filename = os.path.basename(urlparse(i).path)
+            save_image(r, filename)
+        else:
+            print("Content fetched is not an image")
+    except (requests.exceptions.ConnectionError, ConnectionResetError) as exc:
+        parse_result = urlparse(i)
+        if bool(parse_result.query):
+            print("Image query params are not supported by the proxy. {}".format(i))
+            sys.exit(1)
+        new_i = "https://cdn.statically.io/img/{}{}".format(parse_result.netloc, parse_result.path)
+        print("Trying to proxy image {} with {}".format(i, new_i))
+        try:
+            r = requests.get(new_i, headers=fake_headers, timeout=10)
             r.raise_for_status()
-        except (requests.exceptions.ConnectionError, ConnectionResetError):
-            parse_result = urlparse(i)
-            if parse_result.query:
-                print(f"Image query params are not supported by the proxy. {i}")
-                sys.exit(1)
-            new_i = f"https://cdn.statically.io/img/{parse_result.netloc}{parse_result.path}"
-            print(f"Trying to proxy image {i} with {new_i}")
-            try:
-                r = requests.get(new_i, headers=fake_headers, timeout=10)
-                r.raise_for_status()
-            except requests.exceptions.RequestException as e:
-                print(f"Error saving image with proxy: {new_i}. Exception: {e}")
-                continue
+            if 'image' in r.headers['Content-Type']:
+                filename = os.path.basename(urlparse(new_i).path)
+                save_image(r, filename)
+            else:
+                print("Content fetched via proxy is not an image")
         except requests.exceptions.RequestException as e:
-            print(f"Error saving image: {i}. Exception: {e}")
-            continue
+            print("Error saving image with proxy: {}. Exception: {}".format(new_i, str(e)))
+    except requests.exceptions.RequestException as e:
+        print("Error saving image: {}. Exception: {}".format(i, str(e)))
+        continue
 
         with open(os.path.join(path, name), 'wb') as outfile:
             outfile.write(r.content)
