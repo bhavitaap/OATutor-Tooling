@@ -26,22 +26,21 @@ fake_headers = {
 def create_default_pathway(tutoring):
     return json.dumps(tutoring, indent=4)
 
-
 def save_image(response, filename, path):
+    # Ensure the directory exists
     os.makedirs(path, exist_ok=True)
     file_path = os.path.join(path, filename)
     with open(file_path, 'wb') as outfile:
         outfile.write(response.content)
     print(f"Image saved as {file_path}")
 
-
-def fetch_image(i):
+def fetch_image(i, path):
     try:
         r = requests.get(i, headers=fake_headers)
         r.raise_for_status()
         if 'image' in r.headers['Content-Type']:
             filename = os.path.basename(urlparse(i).path)
-            save_image(r, filename)
+            save_image(r, filename, path)
         else:
             print("Content fetched is not an image")
     except (requests.exceptions.ConnectionError, ConnectionResetError):
@@ -56,7 +55,7 @@ def fetch_image(i):
             r.raise_for_status()
             if 'image' in r.headers['Content-Type']:
                 filename = os.path.basename(urlparse(new_i).path)
-                save_image(r, filename)
+                save_image(r, filename, path)
             else:
                 print("Content fetched via proxy is not an image")
         except requests.exceptions.RequestException as e:
