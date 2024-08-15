@@ -9,7 +9,7 @@ STEP_TITLE_CHECK_SHEET_NAME = "Step Title as Answer Check"
 
 def alert(alert_df, step_title_as_ans=False):
     scope = ['https://spreadsheets.google.com/feeds'] 
-    credentials = ServiceAccountCredentials.from_json_keyfile_name("/home/runner/work/OATutor/OATutor/oatutor-askoski-705644bfdf34.json", scope) 
+    credentials = ServiceAccountCredentials.from_json_keyfile_name("oatutor-askoski-705644bfdf34.json", scope) 
     gc = gspread.authorize(credentials)
     book = gc.open_by_key(FEEDBACK_SPREADSHEET)
     if step_title_as_ans:

@@ -11,7 +11,7 @@ def check_sheet(spreadsheet_key, sheet_name, is_local):
 
     if is_local == "online":
         scope = ['https://spreadsheets.google.com/feeds'] 
-        credentials = ServiceAccountCredentials.from_json_keyfile_name("/home/runner/work/OATutor/OATutor/oatutor-askoski-705644bfdf34.json", scope) 
+        credentials = ServiceAccountCredentials.from_json_keyfile_name("oatutor-askoski-705644bfdf34.json", scope) 
         gc = gspread.authorize(credentials)
         book = gc.open_by_key(spreadsheet_key)
         worksheet = book.worksheet(sheet_name) 
