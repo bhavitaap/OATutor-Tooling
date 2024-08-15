@@ -25,7 +25,7 @@ def get_all_url():
 
 def get_sheet_online(spreadsheet_key):
     scope = ['https://spreadsheets.google.com/feeds']
-    credentials = ServiceAccountCredentials.from_json_keyfile_name("/oatutor-askoski-705644bfdf34.json", scope)
+    credentials = ServiceAccountCredentials.from_json_keyfile_name("/home/runner/work/oatutor-askoski-705644bfdf34.json", scope)
     gc = gspread.authorize(credentials)
     book = gc.open_by_key(spreadsheet_key)
     print(f"Spreadsheet title: {book.title}")
