@@ -10,7 +10,6 @@ import json
 from create_dir import *
 from create_content import *
 
-
 fake_headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                   'Chrome/96.0.4664.93 Safari/537.36',
@@ -26,6 +25,45 @@ fake_headers = {
 
 def create_default_pathway(tutoring):
     return json.dumps(tutoring, indent=4)
+
+
+def save_image(response, filename, path):
+    # Ensure the directory exists
+    os.makedirs(path, exist_ok=True)
+    file_path = os.path.join(path, filename)
+    with open(file_path, 'wb') as outfile:
+        outfile.write(response.content)
+    print(f"Image saved as {file_path}")
+
+
+def fetch_image(i):
+    try:
+        r = requests.get(i, headers=fake_headers)
+        r.raise_for_status()
+        if 'image' in r.headers['Content-Type']:
+            filename = os.path.basename(urlparse(i).path)
+            save_image(r, filename)
+        else:
+            print("Content fetched is not an image")
+    except (requests.exceptions.ConnectionError, ConnectionResetError):
+        parse_result = urlparse(i)
+        if parse_result.query:
+            print(f"Image query params are not supported by the proxy. {i}")
+            sys.exit(1)
+        new_i = f"https://cdn.statically.io/img/{parse_result.netloc}{parse_result.path}"
+        print(f"Trying to proxy image {i} with {new_i}")
+        try:
+            r = requests.get(new_i, headers=fake_headers, timeout=10)
+            r.raise_for_status()
+            if 'image' in r.headers['Content-Type']:
+                filename = os.path.basename(urlparse(new_i).path)
+                save_image(r, filename)
+            else:
+                print("Content fetched via proxy is not an image")
+        except requests.exceptions.RequestException as e:
+            print(f"Error saving image with proxy: {new_i}. Exception: {e}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error saving image: {i}. Exception: {e}")
 
 
 def save_images(images, checksums, path, num, old_path):
@@ -57,28 +95,8 @@ def save_images(images, checksums, path, num, old_path):
         if found:
             continue
 
-        try:
-            r = requests.get(i, headers=fake_headers)
-            r.raise_for_status()
-        except (requests.exceptions.ConnectionError, ConnectionResetError):
-            parse_result = urlparse(i)
-            if parse_result.query:
-                print(f"Image query params are not supported by the proxy. {i}")
-                sys.exit(1)
-            new_i = f"https://cdn.statically.io/img/{parse_result.netloc}{parse_result.path}"
-            print(f"Trying to proxy image {i} with {new_i}")
-            try:
-                r = requests.get(new_i, headers=fake_headers, timeout=10)
-                r.raise_for_status()
-            except requests.exceptions.RequestException as e:
-                print(f"Error saving image with proxy: {new_i}. Exception: {e}")
-                continue
-        except requests.exceptions.RequestException as e:
-            print(f"Error saving image: {i}. Exception: {e}")
-            continue
+        fetch_image(i)
 
-        with open(os.path.join(path, name), 'wb') as outfile:
-            outfile.write(r.content)
         updated_checksums.append(create_image_md5(os.path.join(path, name)))
 
     return names, num, " ".join(updated_checksums)
