@@ -93,7 +93,7 @@ def save_images(images, checksums, path, num, old_path):
         if found:
             continue
 
-        fetch_image(i)
+        fetch_image(i, path)
 
         updated_checksums.append(create_image_md5(os.path.join(path, name)))
 
