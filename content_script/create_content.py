@@ -155,7 +155,7 @@ def create_scaffold(step, hint_id, title, body, answer_type, answer, mc_answers,
     
     answer_type, problem_type = handle_answer_type(answer_type)
     if answer_type == "arithmetic":
-        if "," in answer:
+        if "," in answer and not "/mat" in answer:
             raise Exception("Scaffold arithmetic answer contains comma")
         answer = preprocess_text_to_latex(answer, render_latex=latex, verbosity=verbosity)[0]
     scaff_ans = [answer]
