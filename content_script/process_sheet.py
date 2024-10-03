@@ -33,14 +33,23 @@ try:
 except:
     URL_SPREADSHEET_KEY = ""
 
-def get_sheet_online(spreadsheet_key):
+def get_sheet_online(spreadsheet_key, retries=5):
     scope = ['https://spreadsheets.google.com/feeds']
     credentials = ServiceAccountCredentials.from_json_keyfile_name("/home/runner/work/oatutor-askoski-705644bfdf34.json", scope)
     gc = gspread.authorize(credentials)
-    book = gc.open_by_key(spreadsheet_key)
-    return book
-
-
+    
+    attempt = 0
+    while attempt < retries:
+        try:
+            book = gc.open_by_key(spreadsheet_key)
+            return book
+        except APIError as e:
+            print(f"APIError encountered: {e}.")
+            attempt += 1
+            exponential_backoff(attempt)
+    
+    raise Exception("Max retries reached. Could not connect to Google Sheets.")
+    
 def get_all_url(bank_url, is_local):
     if is_local == "online":
 
@@ -79,7 +88,11 @@ def next_available_row(worksheet):
     str_list = list(filter(None, worksheet.col_values(1)))
     return str(len(str_list) + 1)
 
-
+def exponential_backoff(attempt, max_wait=60):
+    wait_time = min(max_wait, 2 ** attempt + random.uniform(0, 1))
+    print(f"Retrying in {wait_time:.2f} seconds...")
+    time.sleep(wait_time)
+    
 def validate_question(question, variabilization, latex, verbosity, old_path):
     problem_row = question.iloc[0]
     previous_tutor = ""
@@ -145,7 +158,6 @@ def validate_question(question, variabilization, latex, verbosity, old_path):
 
 
 def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, verbosity=False, course_name="", mode="full"):
-
     variabilization = meta = False
     if is_local == "online":
         book = get_sheet_online(spreadsheet_key)
