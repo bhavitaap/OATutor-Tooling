@@ -34,6 +34,19 @@ try:
 except:
     URL_SPREADSHEET_KEY = ""
 
+def get_sheet_with_retries(book, sheet_name, retries=5, delay=5):
+    attempt = 0
+    while attempt < retries:
+        try:
+            worksheet = book.worksheet(sheet_name)
+            return worksheet
+        except APIError as e:
+            print(f"APIError encountered: {e}. Retrying in {delay} seconds... (Attempt {attempt + 1}/{retries})")
+            time.sleep(delay)
+            attempt += 1
+            delay *= 2
+    raise Exception(f"Failed to fetch worksheet '{sheet_name}' after {retries} retries.")
+    
 def get_sheet_online(spreadsheet_key, retries=5):
     scope = ['https://spreadsheets.google.com/feeds']
     credentials = ServiceAccountCredentials.from_json_keyfile_name("/home/runner/work/oatutor-askoski-705644bfdf34.json", scope)
@@ -173,7 +186,7 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
     variabilization = meta = False
     if is_local == "online":
         book = get_sheet_online(spreadsheet_key)
-        worksheet = book.worksheet(sheet_name)
+        worksheet = get_sheet_with_retries(book, sheet_name)
         table = get_sheet_values(worksheet)
         try:
             df = pd.DataFrame(table[1:], columns=table[0])
