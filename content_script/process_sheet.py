@@ -8,6 +8,7 @@ import gspread
 import pandas as pd
 import numpy as np
 import shortuuid
+import pytz
 from gspread_dataframe import set_with_dataframe
 from oauth2client.service_account import ServiceAccountCredentials
 from dotenv import load_dotenv
@@ -214,7 +215,8 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
         except KeyError as e:
             print("[{}] error found: {}".format(sheet_name, e))
             error_df = pd.DataFrame(index=range(len(df)), columns=['Validator Check', 'Time Last Checked'])
-            error_df.at[0, 'Time Last Checked'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            pacific_tz = pytz.timezone('America/Los_Angeles')
+            error_df.at[0, 'Time Last Checked'] = datetime.now(pacific_tz).strftime("%d/%m/%Y %H:%M:%S")
             error_df.at[0, 'Validator Check'] = str(e)
             try:
                 if variabilization:
@@ -271,7 +273,8 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
         except KeyError as e:
             print("[{}] error found: {}".format(sheet_name, e))
             error_df = pd.DataFrame(index=range(len(df)), columns=['Validator Check', 'Time Last Checked', 'Debug Link', 'Problem ID', 'Lesson ID'])
-            error_df.at[0, 'Time Last Checked'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            pacific_tz = pytz.timezone('America/Los_Angeles')
+            error_df.at[0, 'Time Last Checked'] = datetime.now(pacific_tz).strftime("%d/%m/%Y %H:%M:%S")
             error_df.at[0, 'Validator Check'] = str(e)
             if 'Lesson ID' in df.columns:
                 error_df.at[0, 'Lesson ID'] = df['Lesson ID'][0]
@@ -320,7 +323,8 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
 
     error_data = []
     error_df = pd.DataFrame(index=range(len(df)), columns=['Validator Check', 'Time Last Checked'])
-    error_df.at[0, 'Time Last Checked'] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    pacific_tz = pytz.timezone('America/Los_Angeles')
+    error_df.at[0, 'Time Last Checked'] = datetime.now(pacific_tz).strftime("%d/%m/%Y %H:%M:%S")
 
     debug_df = pd.DataFrame(index=range(len(df)), columns=['Debug Link', 'Problem ID', 'Lesson ID', 'Image Checksum'])
     debug_platform_template = "https://cahlr.github.io/OATutor-Content-Staging/#/debug/{}"
