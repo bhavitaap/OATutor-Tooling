@@ -50,6 +50,17 @@ def get_sheet_online(spreadsheet_key, retries=5):
     
     raise Exception("Max retries reached. Could not connect to Google Sheets.")
     
+def get_sheet_values(worksheet, retries=5):
+    attempt = 0
+    while attempt < retries:
+        try:
+            return worksheet.get_all_values()
+        except APIError as e:
+            print(f"APIError encountered while fetching sheet values: {e}.")
+            attempt += 1
+            exponential_backoff(attempt)
+    raise Exception("Max retries reached. Could not fetch sheet values.")
+    
 def get_all_url(bank_url, is_local):
     if is_local == "online":
 
@@ -162,7 +173,7 @@ def process_sheet(spreadsheet_key, sheet_name, default_path, is_local, latex, ve
     if is_local == "online":
         book = get_sheet_online(spreadsheet_key)
         worksheet = book.worksheet(sheet_name)
-        table = worksheet.get_all_values()
+        table = get_sheet_values(worksheet)
         try:
             df = pd.DataFrame(table[1:], columns=table[0])
         except:
