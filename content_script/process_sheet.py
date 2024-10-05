@@ -100,8 +100,8 @@ def next_available_row(worksheet):
     str_list = list(filter(None, worksheet.col_values(1)))
     return str(len(str_list) + 1)
 
-def exponential_backoff(attempt, max_wait=60):
-    wait_time = min(max_wait, 2 ** attempt + random.uniform(0, 1))
+def exponential_backoff(attempt, max_wait=40):
+    wait_time = max_wait
     print(f"Retrying in {wait_time:.2f} seconds...")
     time.sleep(wait_time)
     
