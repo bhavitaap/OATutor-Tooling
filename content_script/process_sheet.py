@@ -13,6 +13,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from dotenv import load_dotenv
 from pathlib import Path
 from openpyxl import load_workbook
+from gspread.exceptions import APIError
 
 pd.options.display.html.use_mathjax = False
 
