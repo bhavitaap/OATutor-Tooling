@@ -50,7 +50,7 @@ def get_sheet_with_retries(book, sheet_name, retries=5, delay=5):
     
 def get_sheet_online(spreadsheet_key, retries=5):
     scope = ['https://spreadsheets.google.com/feeds']
-    credentials = ServiceAccountCredentials.from_json_keyfile_name("/home/runner/work/oatutor-askoski-705644bfdf34.json", scope)
+    credentials = ServiceAccountCredentials.from_json_keyfile_name("oatutor-3b7cd758262c", scope)
     gc = gspread.authorize(credentials)
     
     attempt = 0
